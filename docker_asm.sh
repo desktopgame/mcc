@@ -1,0 +1,1 @@
+docker run --rm -v ${PWD}:/mcc -w /mcc compilerbook sh asm.sh
