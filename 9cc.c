@@ -17,7 +17,19 @@ struct Token {
   int len;
 };
 
-typedef enum { ND_ADD, ND_SUB, ND_MUL, ND_DIV, ND_NUM } NodeKind;
+typedef enum {
+  ND_EQ,
+  ND_NEQ,
+  ND_GT,
+  ND_GE,
+  ND_LT,
+  ND_LE,
+  ND_ADD,
+  ND_SUB,
+  ND_MUL,
+  ND_DIV,
+  ND_NUM
+} NodeKind;
 
 typedef struct Node Node;
 
@@ -44,17 +56,49 @@ Node* new_node_num(int val) {
 }
 
 bool consume(char* op);
+Node* equality();
+Node* relational();
 Node* mul();
 Node* primary();
 Node* unary();
 
 Node* expr() {
-  Node* node = mul();
+  Node* node = equality();
   for (;;) {
     if (consume("+")) {
-      node = new_node(ND_ADD, node, mul());
+      node = new_node(ND_ADD, node, equality());
     } else if (consume("-")) {
-      node = new_node(ND_SUB, node, mul());
+      node = new_node(ND_SUB, node, equality());
+    } else {
+      return node;
+    }
+  }
+}
+
+Node* equality() {
+  Node* node = relational();
+  for (;;) {
+    if (consume("==")) {
+      node = new_node(ND_EQ, node, relational());
+    } else if (consume("!=")) {
+      node = new_node(ND_NEQ, node, relational());
+    } else {
+      return node;
+    }
+  }
+}
+
+Node* relational() {
+  Node* node = mul();
+  for (;;) {
+    if (consume("<")) {
+      node = new_node(ND_LT, node, mul());
+    } else if (consume("<=")) {
+      node = new_node(ND_LE, node, mul());
+    } else if (consume(">")) {
+      node = new_node(ND_GT, node, mul());
+    } else if (consume(">=")) {
+      node = new_node(ND_GE, node, mul());
     } else {
       return node;
     }
