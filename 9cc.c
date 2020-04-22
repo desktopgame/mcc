@@ -58,22 +58,12 @@ Node* new_node_num(int val) {
 bool consume(char* op);
 Node* equality();
 Node* relational();
+Node* add();
 Node* mul();
 Node* primary();
 Node* unary();
 
-Node* expr() {
-  Node* node = equality();
-  for (;;) {
-    if (consume("+")) {
-      node = new_node(ND_ADD, node, equality());
-    } else if (consume("-")) {
-      node = new_node(ND_SUB, node, equality());
-    } else {
-      return node;
-    }
-  }
-}
+Node* expr() { return equality(); }
 
 Node* equality() {
   Node* node = relational();
@@ -89,16 +79,29 @@ Node* equality() {
 }
 
 Node* relational() {
-  Node* node = mul();
+  Node* node = add();
   for (;;) {
     if (consume("<")) {
-      node = new_node(ND_LT, node, mul());
+      node = new_node(ND_LT, node, add());
     } else if (consume("<=")) {
-      node = new_node(ND_LE, node, mul());
+      node = new_node(ND_LE, node, add());
     } else if (consume(">")) {
-      node = new_node(ND_GT, node, mul());
+      node = new_node(ND_GT, node, add());
     } else if (consume(">=")) {
-      node = new_node(ND_GE, node, mul());
+      node = new_node(ND_GE, node, add());
+    } else {
+      return node;
+    }
+  }
+}
+
+Node* add() {
+  Node* node = mul();
+  for (;;) {
+    if (consume("+")) {
+      node = new_node(ND_ADD, node, mul());
+    } else if (consume("-")) {
+      node = new_node(ND_SUB, node, mul());
     } else {
       return node;
     }
