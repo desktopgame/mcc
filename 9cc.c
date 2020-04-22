@@ -86,9 +86,9 @@ Node* relational() {
     } else if (consume("<=")) {
       node = new_node(ND_LE, node, add());
     } else if (consume(">")) {
-      node = new_node(ND_GT, node, add());
+      node = new_node(ND_LT, add(), node);
     } else if (consume(">=")) {
-      node = new_node(ND_GE, node, add());
+      node = new_node(ND_LE, add(), node);
     } else {
       return node;
     }
@@ -166,24 +166,24 @@ void gen(Node* node) {
       printf("  idiv rdi\n");
       break;
     case ND_EQ:
-      printf("  cmp rax, rdi");
-      printf("  sete al");
-      printf("  mozb rax, al");
+      printf("  cmp rax, rdi\n");
+      printf("  sete al\n");
+      printf("  movzb rax, al\n");
       break;
     case ND_NEQ:
-      printf("  cmp rax, rdi");
-      printf("  setne al");
-      printf("  mozb rax, al");
+      printf("  cmp rax, rdi\n");
+      printf("  setne al\n");
+      printf("  movzb rax, al\n");
       break;
     case ND_LT:
-      printf("  cmp rax, rdi");
-      printf("  setl al");
-      printf("  mozb rax, al");
+      printf("  cmp rax, rdi\n");
+      printf("  setl al\n");
+      printf("  movzb rax, al\n");
       break;
     case ND_LE:
-      printf("  cmp rax, rdi");
-      printf("  setle al");
-      printf("  mozb rax, al");
+      printf("  cmp rax, rdi\n");
+      printf("  setle al\n");
+      printf("  movzb rax, al\n");
       break;
     default:
       break;
@@ -249,6 +249,17 @@ Token* new_token(TokenKind kind, Token* cur, char* str) {
   return tok;
 }
 
+bool has_prefix(const char* src, const char* target) {
+  while (*target != '\0') {
+    if (*src != *target) {
+      return false;
+    }
+    src++;
+    target++;
+  }
+  return true;
+}
+
 Token* tokenize(char* p) {
   Token head;
   head.next = NULL;
@@ -258,7 +269,14 @@ Token* tokenize(char* p) {
       p++;
       continue;
     }
-    if (strchr("+-*/()", *p)) {
+    if (has_prefix(p, "==") || has_prefix(p, "!=") || has_prefix(p, "<=") ||
+        has_prefix(p, ">=")) {
+      cur = new_token(TK_RESERVED, cur, p);
+      cur->len = 2;
+      p += 2;
+      continue;
+    }
+    if (strchr("+-*/()<>", *p)) {
       cur = new_token(TK_RESERVED, cur, p++);
       cur->len = 1;
       continue;
