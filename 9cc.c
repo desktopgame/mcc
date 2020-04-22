@@ -165,6 +165,26 @@ void gen(Node* node) {
       printf("  cqo\n");
       printf("  idiv rdi\n");
       break;
+    case ND_EQ:
+      printf("  cmp rax, rdi");
+      printf("  sete al");
+      printf("  mozb rax, al");
+      break;
+    case ND_NEQ:
+      printf("  cmp rax, rdi");
+      printf("  setne al");
+      printf("  mozb rax, al");
+      break;
+    case ND_LT:
+      printf("  cmp rax, rdi");
+      printf("  setl al");
+      printf("  mozb rax, al");
+      break;
+    case ND_LE:
+      printf("  cmp rax, rdi");
+      printf("  setle al");
+      printf("  mozb rax, al");
+      break;
     default:
       break;
   }
