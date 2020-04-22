@@ -17,6 +17,19 @@ struct Token {
 };
 
 Token* token;
+char* user_input;
+
+void error_at(char* loc, const char* fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+  int pos = loc - fmt;
+  fprintf(stderr, "%s\n", user_input);
+  fprintf(stderr, "%*s", pos, "");
+  fprintf(stderr, "^ ");
+  vfprintf(stderr, fmt, ap);
+  fprintf(stderr, "\n");
+  exit(1);
+}
 
 void error(const char* fmt, ...) {
   va_list ap;
@@ -36,14 +49,14 @@ bool consume(char op) {
 
 void expect(char op) {
   if (token->kind != TK_RESERVED || token->str[0] != op) {
-    error("%cではありません", op);
+    error_at(token->str, "%cではありません", op);
   }
   token = token->next;
 }
 
 int expect_number() {
   if (token->kind != TK_NUM) {
-    error("数ではありません");
+    error_at(token->str, "数ではありません");
   }
   int val = token->val;
   token = token->next;
