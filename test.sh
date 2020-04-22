@@ -20,4 +20,3 @@ assert 0 0
 assert 42 42
 
 echo OK
-rm tmp tmp.s 9cc
