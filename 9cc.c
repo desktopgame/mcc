@@ -14,6 +14,7 @@ struct Token {
   Token* next;
   int val;
   char* str;
+  int len;
 };
 
 typedef enum { ND_ADD, ND_SUB, ND_MUL, ND_DIV, ND_NUM } NodeKind;
@@ -42,7 +43,7 @@ Node* new_node_num(int val) {
   return node;
 }
 
-bool consume(char op);
+bool consume(char* op);
 Node* mul();
 Node* primary();
 Node* unary();
@@ -50,9 +51,9 @@ Node* unary();
 Node* expr() {
   Node* node = mul();
   for (;;) {
-    if (consume('+')) {
+    if (consume("+")) {
       node = new_node(ND_ADD, node, mul());
-    } else if (consume('-')) {
+    } else if (consume("-")) {
       node = new_node(ND_SUB, node, mul());
     } else {
       return node;
@@ -63,9 +64,9 @@ Node* expr() {
 Node* mul() {
   Node* node = unary();
   for (;;) {
-    if (consume('*')) {
+    if (consume("*")) {
       node = new_node(ND_MUL, node, unary());
-    } else if (consume('/')) {
+    } else if (consume("/")) {
       node = new_node(ND_DIV, node, unary());
     } else {
       return node;
@@ -74,10 +75,10 @@ Node* mul() {
 }
 
 Node* unary() {
-  if (consume('+')) {
+  if (consume("+")) {
     return primary();
   }
-  if (consume('-')) {
+  if (consume("-")) {
     return new_node(ND_SUB, new_node_num(0), primary());
   }
   return primary();
@@ -86,7 +87,7 @@ Node* unary() {
 void expect(char op);
 int expect_number();
 Node* primary() {
-  if (consume('(')) {
+  if (consume("(")) {
     Node* node = expr();
     expect(')');
     return node;
@@ -146,8 +147,9 @@ void error(const char* fmt, ...) {
   exit(1);
 }
 
-bool consume(char op) {
-  if (token->kind != TK_RESERVED || token->str[0] != op) {
+bool consume(char* op) {
+  if (token->kind != TK_RESERVED || strlen(op) != token->len ||
+      memcmp(token->str, op, token->len)) {
     return false;
   }
   token = token->next;
@@ -191,11 +193,15 @@ Token* tokenize(char* p) {
     }
     if (strchr("+-*/()", *p)) {
       cur = new_token(TK_RESERVED, cur, p++);
+      cur->len = 1;
       continue;
     }
     if (isdigit(*p)) {
+      char buf[16];
       cur = new_token(TK_NUM, cur, p);
       cur->val = strtol(p, &p, 10);
+      sprintf(buf, "%d", cur->val);
+      cur->len = strlen(buf);
       continue;
     }
     error("トークナイズできません");
