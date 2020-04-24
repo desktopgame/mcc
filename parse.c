@@ -38,6 +38,16 @@ bool consume(char* op) {
   return true;
 }
 
+Token* consume_ident() {
+  Token* n = token->next;
+  if (n->kind != TK_IDENT) {
+    n = NULL;
+  } else {
+    token = n;
+  }
+  return n;
+}
+
 void expect(char op) {
   if (token->kind != TK_RESERVED || token->str[0] != op) {
     error_at(token->str, "%cではありません", op);
@@ -104,12 +114,18 @@ Token* tokenize(char* p) {
       cur->len = strlen(buf);
       continue;
     }
+    if ('a' <= *p && *p <= 'z') {
+      cur = new_token(TK_IDENT, cur, p++);
+      cur->len = 1;
+      continue;
+    }
     error("トークナイズできません");
   }
   new_token(TK_EOF, cur, p);
   return head.next;
 }
 // Node
+Node* code[100];
 
 Node* new_node(NodeKind kind, Node* lhs, Node* rhs) {
   Node* node = calloc(1, sizeof(Node));
@@ -128,7 +144,29 @@ Node* new_node_num(int val) {
 
 bool consume(char* op);
 
-Node* expr() { return equality(); }
+void program() {
+  int i = 0;
+  while (!at_eof()) {
+    code[i++] = stmt();
+  }
+  code[i] = NULL;
+}
+
+Node* stmt() {
+  Node* node = expr();
+  expect(';');
+  return node;
+}
+
+Node* expr() { return assign(); }
+
+Node* assign() {
+  Node* node = equality();
+  if (consume("=")) {
+    node = new_node(ND_ASSIGN, node, assign());
+  }
+  return node;
+}
 
 Node* equality() {
   Node* node = relational();
@@ -200,6 +238,13 @@ Node* primary() {
   if (consume("(")) {
     Node* node = expr();
     expect(')');
+    return node;
+  }
+  Token* tok = consume_ident();
+  if (tok) {
+    Node* node = calloc(1, sizeof(Node));
+    node->kind = ND_LVAR;
+    node->offset = (tok->str[0] - 'a' + 1) * 8;
     return node;
   }
   return new_node_num(expect_number());

@@ -1,7 +1,7 @@
 #pragma once
 #include <stdbool.h>
 // Token
-typedef enum { TK_RESERVED, TK_NUM, TK_EOF } TokenKind;
+typedef enum { TK_RESERVED, TK_IDENT, TK_NUM, TK_EOF } TokenKind;
 
 typedef struct Token Token;
 
@@ -17,6 +17,7 @@ extern char* user_input;
 void error_at(char* loc, const char* fmt, ...);
 void error(const char* fmt, ...);
 bool consume(char* op);
+Token* consume_ident();
 void expect(char op);
 int expect_number();
 bool at_eof();
@@ -25,6 +26,8 @@ Token* tokenize(char* p);
 
 // Node
 typedef enum {
+  ND_ASSIGN,
+  ND_LVAR,
   ND_EQ,
   ND_NEQ,
   ND_GT,
@@ -45,10 +48,15 @@ struct Node {
   Node* lhs;
   Node* rhs;
   int val;
+  int offset;
 };
+extern Node* code[100];
 Node* new_node(NodeKind kind, Node* lhs, Node* rhs);
 Node* new_node_num(int val);
+void program();
+Node* stmt();
 Node* expr();
+Node* assign();
 Node* equality();
 Node* relational();
 Node* add();
