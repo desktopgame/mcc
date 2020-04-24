@@ -117,6 +117,10 @@ Token* tokenize(char* p) {
     if ('a' <= *p && *p <= 'z') {
       cur = new_token(TK_IDENT, cur, p++);
       cur->len = 1;
+      while (('a' <= *p && *p <= 'z')) {
+        p++;
+        cur->len++;
+      }
       continue;
     }
     error("トークナイズできません");
@@ -233,7 +237,14 @@ Node* unary() {
   }
   return primary();
 }
-
+static LVar* find_lvar(Token* tok) {
+  for (LVar* var = locals; var; var = var->next) {
+    if (var->len == tok->len && !memcmp(tok->str, var->name, var->len)) {
+      return var;
+    }
+  }
+  return NULL;
+}
 Node* primary() {
   if (consume("(")) {
     Node* node = expr();
@@ -244,7 +255,18 @@ Node* primary() {
   if (tok) {
     Node* node = calloc(1, sizeof(Node));
     node->kind = ND_LVAR;
-    node->offset = (tok->str[0] - 'a' + 1) * 8;
+    LVar* lvar = find_lvar(tok);
+    if (lvar) {
+      node->offset = lvar->offset;
+    } else {
+      lvar = calloc(1, sizeof(LVar));
+      lvar->next = locals;
+      lvar->name = tok->str;
+      lvar->len = tok->len;
+      lvar->offset = locals->offset + 8;
+      node->offset = lvar->offset;
+      locals = lvar;
+    }
     return node;
   }
   return new_node_num(expect_number());
