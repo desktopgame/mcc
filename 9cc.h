@@ -1,7 +1,17 @@
 #pragma once
 #include <stdbool.h>
 // Token
-typedef enum { TK_RESERVED, TK_IDENT, TK_RETURN, TK_NUM, TK_EOF } TokenKind;
+typedef enum {
+  TK_RESERVED,
+  TK_IDENT,
+  TK_IF,
+  TK_ELSE,
+  TK_WHILE,
+  TK_FOR,
+  TK_RETURN,
+  TK_NUM,
+  TK_EOF
+} TokenKind;
 
 typedef struct Token Token;
 
@@ -26,6 +36,10 @@ Token* tokenize(char* p);
 
 // Node
 typedef enum {
+  ND_IF,
+  ND_ELSE,
+  ND_WHILE,
+  ND_FOR,
   ND_RETURN,
   ND_ASSIGN,
   ND_LVAR,

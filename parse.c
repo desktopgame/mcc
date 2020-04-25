@@ -47,14 +47,16 @@ Token* consume_ident() {
   return NULL;
 }
 
-bool consume_return() {
-  if (token->kind == TK_RETURN) {
+bool consume_kind(TokenKind k) {
+  if (token->kind == k) {
     Token* tmp = token;
     token = token->next;
     return tmp;
   }
   return NULL;
 }
+
+bool consume_return() { return consume_kind(TK_RETURN); }
 
 void expect(char op) {
   if (token->kind != TK_RESERVED || token->str[0] != op) {
@@ -130,6 +132,30 @@ Token* tokenize(char* p) {
       p += 6;
       continue;
     }
+    if (strncmp(p, "if", 2) == 0 && !is_alnum(p[2])) {
+      cur = new_token(TK_IF, cur, p);
+      cur->len = 2;
+      p += 2;
+      continue;
+    }
+    if (strncmp(p, "else", 4) == 0 && !is_alnum(p[4])) {
+      cur = new_token(TK_ELSE, cur, p);
+      cur->len = 4;
+      p += 4;
+      continue;
+    }
+    if (strncmp(p, "while", 5) == 0 && !is_alnum(p[5])) {
+      cur = new_token(TK_WHILE, cur, p);
+      cur->len = 5;
+      p += 5;
+      continue;
+    }
+    if (strncmp(p, "for", 3) == 0 && !is_alnum(p[3])) {
+      cur = new_token(TK_FOR, cur, p);
+      cur->len = 3;
+      p += 3;
+      continue;
+    }
     if ('a' <= *p && *p <= 'z') {
       cur = new_token(TK_IDENT, cur, p++);
       cur->len = 1;
@@ -178,6 +204,66 @@ Node* stmt() {
     node = calloc(1, sizeof(Node));
     node->kind = ND_RETURN;
     node->lhs = expr();
+  } else if (consume_kind(TK_IF)) {
+    expect('(');
+    Node* cond = expr();
+    expect(')');
+    Node* body = stmt();
+    if (consume_kind(TK_ELSE)) {
+      Node* elseBody = stmt();
+      node = calloc(1, sizeof(Node));
+      Node* elseNode = calloc(1, sizeof(Node));
+      elseNode->kind = ND_ELSE;
+      elseNode->lhs = body;
+      elseNode->rhs = elseBody;
+      node->kind = ND_IF;
+      node->lhs = cond;
+      node->rhs = elseNode;
+    } else {
+      node = calloc(1, sizeof(Node));
+      node->kind = ND_IF;
+      node->lhs = cond;
+      node->rhs = body;
+    }
+  } else if (consume_kind(TK_WHILE)) {
+    expect('(');
+    Node* cond = expr();
+    expect(')');
+    Node* body = stmt();
+    node = calloc(1, sizeof(Node));
+    node->kind = ND_WHILE;
+    node->lhs = cond;
+    node->rhs = body;
+  } else if (consume_kind(TK_FOR)) {
+    expect('(');
+    Node* init = NULL;
+    Node* cond = NULL;
+    Node* update = NULL;
+    if (!consume(";")) {
+      init = expr();
+      expect(';');
+    }
+    if (!consume(";")) {
+      cond = expr();
+      expect(';');
+    }
+    if (!consume(")")) {
+      update = expr();
+      expect(')');
+    }
+    Node* body = stmt();
+    node = calloc(1, sizeof(Node));
+    node->kind = ND_FOR;
+    Node* updateAndBody = calloc(1, sizeof(Node));
+    updateAndBody->kind = ND_FOR;
+    updateAndBody->lhs = update;
+    updateAndBody->rhs = body;
+    Node* condAndUpdateAndBody = calloc(1, sizeof(Node));
+    condAndUpdateAndBody->kind = ND_FOR;
+    condAndUpdateAndBody->lhs = cond;
+    condAndUpdateAndBody->rhs = updateAndBody;
+    node->lhs = init;
+    node->rhs = condAndUpdateAndBody;
   } else {
     node = expr();
   }
