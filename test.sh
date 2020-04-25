@@ -50,5 +50,7 @@ assert 100 'foo=20; bar=5; foo*bar;'
 assert 5 'if(1 == 1) 5;'
 assert 5 'if(1 == 1) 5; else 10;'
 assert 10 'if(1 == 2) 5; else 10;'
+assert 10 'a=0; while(a < 10) a = a + 1; a;'
+assert 5 'a=0; b=5; while(a < 10) a = a + 1; b;'
 
 echo OK
