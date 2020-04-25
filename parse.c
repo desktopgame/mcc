@@ -101,7 +101,7 @@ Token* tokenize(char* p) {
       p += 2;
       continue;
     }
-    if (strchr("+-*/()<>", *p)) {
+    if (strchr(";=+-*/()<>", *p)) {
       cur = new_token(TK_RESERVED, cur, p++);
       cur->len = 1;
       continue;
@@ -117,13 +117,13 @@ Token* tokenize(char* p) {
     if ('a' <= *p && *p <= 'z') {
       cur = new_token(TK_IDENT, cur, p++);
       cur->len = 1;
-      while (('a' <= *p && *p <= 'z')) {
-        p++;
-        cur->len++;
-      }
+      // while (('a' <= *p && *p <= 'z')) {
+      //  p++;
+      //  cur->len++;
+      //}
       continue;
     }
-    error("トークナイズできません");
+    error("トークナイズできません: %c", *p);
   }
   new_token(TK_EOF, cur, p);
   return head.next;
