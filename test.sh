@@ -46,5 +46,6 @@ assert 10 '-10+20;'
 assert 10 '- -10;'
 assert 10 '- - +10;'
 assert 5 'a=5;a;'
+assert 100 'foo=20; bar=5; foo*bar;'
 
 echo OK
