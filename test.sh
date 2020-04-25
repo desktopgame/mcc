@@ -47,5 +47,8 @@ assert 10 '- -10;'
 assert 10 '- - +10;'
 assert 5 'a=5;a;'
 assert 100 'foo=20; bar=5; foo*bar;'
+assert 5 'if(1 == 1) 5;'
+assert 5 'if(1 == 1) 5; else 10;'
+assert 10 'if(1 == 2) 5; else 10;'
 
 echo OK

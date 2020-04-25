@@ -51,9 +51,9 @@ bool consume_kind(TokenKind k) {
   if (token->kind == k) {
     Token* tmp = token;
     token = token->next;
-    return tmp;
+    return true;
   }
-  return NULL;
+  return false;
 }
 
 bool consume_return() { return consume_kind(TK_RETURN); }
@@ -225,6 +225,7 @@ Node* stmt() {
       node->lhs = cond;
       node->rhs = body;
     }
+    return node;
   } else if (consume_kind(TK_WHILE)) {
     expect('(');
     Node* cond = expr();
@@ -234,6 +235,7 @@ Node* stmt() {
     node->kind = ND_WHILE;
     node->lhs = cond;
     node->rhs = body;
+    return node;
   } else if (consume_kind(TK_FOR)) {
     expect('(');
     Node* init = NULL;
@@ -264,6 +266,7 @@ Node* stmt() {
     condAndUpdateAndBody->rhs = updateAndBody;
     node->lhs = init;
     node->rhs = condAndUpdateAndBody;
+    return node;
   } else {
     node = expr();
   }

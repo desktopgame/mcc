@@ -11,6 +11,7 @@ static void gen_lval(Node* node) {
 }
 
 void gen(Node* node) {
+  static int label = 0;
   switch (node->kind) {
     case ND_NUM:
       printf("  push %d\n", node->val);
@@ -36,6 +37,29 @@ void gen(Node* node) {
       printf("  mov rsp, rbp\n");
       printf("  pop rbp\n");
       printf("  ret\n");
+      return;
+    case ND_IF: {
+      gen(node->lhs);
+      printf("  pop rax\n");
+      printf("  cmp rax, 0\n");
+      if (node->rhs->kind != ND_ELSE) {
+        int l = label++;
+        printf("  je .Lend%d\n", l);
+        gen(node->rhs);
+        printf(".Lend%d:\n", l);
+      } else {
+        Node* tBody = node->rhs->lhs;
+        Node* fBody = node->rhs->rhs;
+        int l = label++;
+        int l2 = label++;
+        printf("  je .Lelse%d\n", l);
+        gen(tBody);
+        printf("  jmp .Lend%d\n", l2);
+        printf(".Lelse%d:\n", l);
+        gen(fBody);
+        printf(".Lend%d:\n", l2);
+      }
+    }
       return;
   }
   gen(node->lhs);
