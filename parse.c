@@ -47,6 +47,15 @@ Token* consume_ident() {
   return NULL;
 }
 
+bool consume_return() {
+  if (token->kind == TK_RETURN) {
+    Token* tmp = token;
+    token = token->next;
+    return tmp;
+  }
+  return NULL;
+}
+
 void expect(char op) {
   if (token->kind != TK_RESERVED || token->str[0] != op) {
     error_at(token->str, "%cではありません", op);
@@ -84,6 +93,8 @@ bool has_prefix(const char* src, const char* target) {
   return true;
 }
 
+static int is_alnum(char c) { return isalpha(c) || isdigit(c) || c == '_'; }
+
 Token* tokenize(char* p) {
   Token head;
   head.next = NULL;
@@ -111,6 +122,12 @@ Token* tokenize(char* p) {
       cur->val = strtol(p, &p, 10);
       sprintf(buf, "%d", cur->val);
       cur->len = strlen(buf);
+      continue;
+    }
+    if (strncmp(p, "return", 6) == 0 && !is_alnum(p[6])) {
+      cur = new_token(TK_RETURN, cur, p);
+      cur->len = 6;
+      p += 6;
       continue;
     }
     if ('a' <= *p && *p <= 'z') {
@@ -156,8 +173,17 @@ void program() {
 }
 
 Node* stmt() {
-  Node* node = expr();
-  expect(';');
+  Node* node;
+  if (consume_return()) {
+    node = calloc(1, sizeof(Node));
+    node->kind = ND_RETURN;
+    node->lhs = expr();
+  } else {
+    node = expr();
+  }
+  if (!consume(";")) {
+    error_at(token->str, "';'ではないトークンです。");
+  }
   return node;
 }
 
