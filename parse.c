@@ -39,13 +39,12 @@ bool consume(char* op) {
 }
 
 Token* consume_ident() {
-  Token* n = token->next;
-  if (n->kind != TK_IDENT) {
-    n = NULL;
-  } else {
-    token = n;
+  if (token->kind == TK_IDENT) {
+    Token* tmp = token;
+    token = token->next;
+    return tmp;
   }
-  return n;
+  return NULL;
 }
 
 void expect(char op) {
@@ -263,7 +262,7 @@ Node* primary() {
       lvar->next = locals;
       lvar->name = tok->str;
       lvar->len = tok->len;
-      lvar->offset = locals->offset + 8;
+      lvar->offset = locals == NULL ? 8 : locals->offset + 8;
       node->offset = lvar->offset;
       locals = lvar;
     }
