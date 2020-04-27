@@ -92,3 +92,20 @@ struct LVar {
 // ローカル変数
 extern LVar* locals;
 void gen(Node* node);
+
+// 可変長配列
+typedef struct Vec Vec;
+
+struct Vec {
+  void** data;
+  int capa;
+  int size;
+};
+
+void vec_init(Vec* self);
+
+void vec_push(Vec* self, void* a);
+
+void* vec_at(Vec* self, int index);
+
+void vec_assign(Vec* self, int index, void* a);
