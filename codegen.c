@@ -95,6 +95,15 @@ void gen(Node* node) {
       printf(".Lend%d:\n", l2);
     }
       return;
+    case ND_BLOCK: {
+      Node* top = node;
+      while (top) {
+        gen(top->lhs);
+        printf("  pop rax\n");
+        top = top->rhs;
+      }
+    }
+      return;
   }
   gen(node->lhs);
   gen(node->rhs);

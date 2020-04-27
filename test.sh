@@ -53,5 +53,6 @@ assert 10 'if(1 == 2) 5; else 10;'
 assert 10 'a=0; while(a < 10) a = a + 1; a;'
 assert 5 'a=0; b=5; while(a < 10) a = a + 1; b;'
 assert 10 'for(a=0; a<10; a=a+1) a; a;'
+assert 5 'x=0; for(a=0; a<10; a=a+1) { if(a == 5) { x = x + 2; } if(a == 3 ) { x = x + 3; } } x;'
 
 echo OK

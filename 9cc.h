@@ -36,6 +36,7 @@ Token* tokenize(char* p);
 
 // Node
 typedef enum {
+  ND_BLOCK,
   ND_IF,
   ND_ELSE,
   ND_WHILE,

@@ -113,7 +113,7 @@ Token* tokenize(char* p) {
       p += 2;
       continue;
     }
-    if (strchr(";=+-*/()<>", *p)) {
+    if (strchr(";=+-*/()<>{}", *p)) {
       cur = new_token(TK_RESERVED, cur, p++);
       cur->len = 1;
       continue;
@@ -266,6 +266,23 @@ Node* stmt() {
     condAndUpdateAndBody->rhs = updateAndBody;
     node->lhs = init;
     node->rhs = condAndUpdateAndBody;
+    return node;
+  } else if (consume("{")) {
+    node = calloc(1, sizeof(Node));
+    node->kind = ND_BLOCK;
+    Node* write = node;
+    while (!consume("}")) {
+      Node* line = stmt();
+      if (!write->lhs) {
+        write->lhs = line;
+      } else {
+        Node* child = calloc(1, sizeof(Node));
+        child->lhs = line;
+        child->kind = ND_BLOCK;
+        write->rhs = child;
+        write = child;
+      }
+    }
     return node;
   } else {
     node = expr();
