@@ -74,6 +74,27 @@ void gen(Node* node) {
       printf(".Lend%d:\n", l2);
     }
       return;
+    case ND_FOR: {
+      int l = label++;
+      int l2 = label++;
+      Node* init = node->lhs;
+      Node* condAndUpdateAndBody = node->rhs;
+      Node* cond = condAndUpdateAndBody->lhs;
+      Node* updateAndBody = condAndUpdateAndBody->rhs;
+      Node* update = updateAndBody->lhs;
+      Node* body = updateAndBody->rhs;
+      gen(init);
+      printf(".Lbegin%d:\n", l);
+      gen(cond);
+      printf("  pop rax\n");
+      printf("  cmp rax, 0\n");
+      printf("  je .Lend%d\n", l2);
+      gen(body);
+      gen(update);
+      printf("  jmp .Lbegin%d\n", l);
+      printf(".Lend%d:\n", l2);
+    }
+      return;
   }
   gen(node->lhs);
   gen(node->rhs);
