@@ -383,6 +383,24 @@ Node* primary() {
     return node;
   }
   Token* tok = consume_ident();
+  if (tok && consume("(")) {
+    Node* node = calloc(1, sizeof(Node));
+    Node* write = node;
+    node->kind = ND_CALL;
+    while (!consume(")")) {
+      Node* arg = expr();
+      if (!write->lhs) {
+        write->lhs = arg;
+      } else {
+        Node* child = calloc(1, sizeof(Node));
+        child->kind = ND_CALL;
+        child->lhs = arg;
+        write->rhs = child;
+        write = child;
+      }
+    }
+    return node;
+  }
   if (tok) {
     Node* node = calloc(1, sizeof(Node));
     node->kind = ND_LVAR;
