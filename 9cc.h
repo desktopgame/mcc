@@ -118,3 +118,21 @@ void vec_push(Vec* self, void* a);
 void* vec_at(Vec* self, int index);
 
 void vec_assign(Vec* self, int index, void* a);
+
+// 二分探索木
+typedef struct Map Map;
+
+struct Map {
+  char* key;
+  void* value;
+  Map* left;
+  Map* right;
+};
+
+void map_init(Map* self, const char* key);
+
+Map* map_new();
+
+void map_set(Map* self, const char* key, void* value);
+
+bool map_get(Map* self, const char* key, void** outValue);
