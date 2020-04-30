@@ -384,7 +384,10 @@ Node* primary() {
   }
   Token* tok = consume_ident();
   if (tok && consume("(")) {
-    Node* node = calloc(1, sizeof(Node));
+    CallNode* cNode = calloc(1, sizeof(CallNode));
+    cNode->name = tok->str;
+    cNode->len = tok->len;
+    Node* node = (Node*)cNode;
     Node* write = node;
     node->kind = ND_CALL;
     while (!consume(")")) {

@@ -4,7 +4,7 @@ assert() {
   input="$2"
 
   ./9cc "$input" > tmp.s
-  cc -o tmp tmp.s
+  cc -o tmp tmp.s lib/lib.o
   ./tmp
   actual="$?"
 
@@ -15,6 +15,9 @@ assert() {
     exit 1
   fi
 }
+
+rm -rf lib/lib.o
+cc -o lib/lib.o -c lib/lib.c
 
 #assert 0 0
 #assert 42 42
@@ -54,5 +57,6 @@ assert 10 'a=0; while(a < 10) a = a + 1; a;'
 assert 5 'a=0; b=5; while(a < 10) a = a + 1; b;'
 assert 10 'for(a=0; a<10; a=a+1) a; a;'
 assert 5 'x=0; for(a=0; a<10; a=a+1) { if(a == 5) { x = x + 2; } if(a == 3 ) { x = x + 3; } } x;'
+assert 1 'one();'
 
 echo OK

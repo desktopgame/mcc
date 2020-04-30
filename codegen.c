@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "9cc.h"
 LVar* locals = NULL;
@@ -102,6 +103,16 @@ void gen(Node* node) {
         printf("  pop rax\n");
         top = top->rhs;
       }
+    }
+      return;
+    case ND_CALL: {
+      CallNode* cNode = (CallNode*)node;
+      char name[cNode->len + 1];
+      memset(name, '\0', cNode->len + 1);
+      memcpy(name, cNode->name, cNode->len);
+      printf("  mov rax, 0\n");
+      printf("  call %s\n", name);
+      printf("  push rax\n");
     }
       return;
   }

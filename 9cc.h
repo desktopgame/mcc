@@ -67,6 +67,13 @@ struct Node {
   int val;
   int offset;
 };
+
+typedef struct CallNode CallNode;
+struct CallNode {
+  Node node;
+  char* name;
+  int len;
+};
 extern Node* code[100];
 Node* new_node(NodeKind kind, Node* lhs, Node* rhs);
 Node* new_node_num(int val);
