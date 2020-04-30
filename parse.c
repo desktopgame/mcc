@@ -113,7 +113,7 @@ Token* tokenize(char* p) {
       p += 2;
       continue;
     }
-    if (strchr(";=+-*/()<>{}", *p)) {
+    if (strchr(";=+-*/()<>{},", *p)) {
       cur = new_token(TK_RESERVED, cur, p++);
       cur->len = 1;
       continue;
@@ -159,7 +159,7 @@ Token* tokenize(char* p) {
     if ('a' <= *p && *p <= 'z') {
       cur = new_token(TK_IDENT, cur, p++);
       cur->len = 1;
-      while (('a' <= *p && *p <= 'z')) {
+      while (('a' <= *p && *p <= 'z') || isdigit(*p) || *p == '_') {
         p++;
         cur->len++;
       }
@@ -392,6 +392,7 @@ Node* primary() {
     node->kind = ND_CALL;
     while (!consume(")")) {
       Node* arg = expr();
+      consume(",");
       if (!write->lhs) {
         write->lhs = arg;
       } else {

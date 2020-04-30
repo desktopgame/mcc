@@ -11,6 +11,26 @@ static void gen_lval(Node* node) {
   printf("  push rax\n");
 }
 
+static char* arg_register(int i) {
+  switch (i) {
+    case 0:
+      return "rdi";
+    case 1:
+      return "rsi";
+    case 2:
+      return "rdx";
+    case 3:
+      return "rcx";
+    case 4:
+      return "r8d";
+    case 5:
+      return "r9d";
+
+    default:
+      break;
+  }
+}
+
 void gen(Node* node) {
   static int label = 0;
   switch (node->kind) {
@@ -107,12 +127,34 @@ void gen(Node* node) {
       return;
     case ND_CALL: {
       CallNode* cNode = (CallNode*)node;
+      Node* arg = node;
       char name[cNode->len + 1];
       memset(name, '\0', cNode->len + 1);
       memcpy(name, cNode->name, cNode->len);
-      printf("  mov rax, 0\n");
-      printf("  call %s\n", name);
-      printf("  push rax\n");
+      if (!arg) {
+        // 引数0個
+        printf("  mov rax, 0\n");
+        printf("  call %s\n", name);
+        printf("  push rax\n");
+      } else {
+        const int MAX_ARGS = 6;
+        // gcc では引数を後ろからスタックに積んでいくので、同じように実装する
+        Node* args[6];
+        memset(args, 0, sizeof(Node*) * MAX_ARGS);
+        for (int i = 0; i < MAX_ARGS; i++) {
+          if (!arg || !arg->lhs) break;
+          args[i] = arg->lhs;
+          arg = arg->rhs;
+        }
+        for (int i = 0; i < MAX_ARGS; i++) {
+          if (!args[i]) break;
+          gen(args[i]);
+          printf("  pop rax\n");
+          printf("  mov %s, rax\n", arg_register(i));
+        }
+        printf("  call %s\n", name);
+        printf("  push rax\n");
+      }
     }
       return;
   }

@@ -58,5 +58,11 @@ assert 5 'a=0; b=5; while(a < 10) a = a + 1; b;'
 assert 10 'for(a=0; a<10; a=a+1) a; a;'
 assert 5 'x=0; for(a=0; a<10; a=a+1) { if(a == 5) { x = x + 2; } if(a == 3 ) { x = x + 3; } } x;'
 assert 1 'one();'
+assert 10 'arg1(10);'
+assert 10 'arg2(15,5);'
+assert 15 'arg3(25,5,5);'
+assert 10 'arg4(25,5,5,5);'
+#assert 5 'arg5(25,5,5,5,5);'
+#assert 0 'arg6(25,5,5,5,5,5);'
 
 echo OK
