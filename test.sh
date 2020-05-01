@@ -62,6 +62,7 @@ assert 10 'arg1(10);'
 assert 10 'arg2(15,5);'
 assert 15 'arg3(25,5,5);'
 assert 10 'arg4(25,5,5,5);'
+assert 20 'i=0; for(n=0; n<10; n=n+1) i = i + arg1(2); i;'
 #assert 5 'arg5(25,5,5,5,5);'
 #assert 0 'arg6(25,5,5,5,5,5);'
 
