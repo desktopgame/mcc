@@ -4,6 +4,7 @@
 
 // 二分探索木
 typedef struct Map Map;
+typedef void (*MapValueFreeFunc)(void*);
 
 struct Map {
   char* key;
@@ -19,4 +20,6 @@ Map* map_new();
 void map_set(Map* self, const char* key, void* value);
 
 bool map_get(Map* self, const char* key, void** outValue);
+
+void map_free(Map* self, MapValueFreeFunc func);
 #endif

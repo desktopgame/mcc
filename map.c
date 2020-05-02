@@ -54,3 +54,16 @@ fail : {
   return false;
 }
 }
+
+void map_free(Map* self, MapValueFreeFunc func) {
+  if (self->left) {
+    map_free(self->left, func);
+  }
+  if (self->right) {
+    map_free(self->right, func);
+  }
+  free(self->key);
+  if (func && self->value) {
+    func(self->value);
+  }
+}

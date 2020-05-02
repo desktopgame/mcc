@@ -42,3 +42,13 @@ void vec_assign(Vec* self, int index, void* a) {
   assert(index >= 0 && index < self->size);
   self->data[index] = a;
 }
+
+void vec_free(Vec* self, VecValueFreeFunc func) {
+  for (int i = 0; i < self->size; i++) {
+    void* v = self->data[i];
+    if (func && v) {
+      func(v);
+    }
+  }
+  free(self->data);
+}
