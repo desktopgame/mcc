@@ -31,7 +31,7 @@ static char* arg_register(int i) {
   }
 }
 
-void gen(Node* node) {
+static void gen1(Node* node, int addVar) {
   static int label = 0;
   switch (node->kind) {
     case ND_NUM:
@@ -55,8 +55,7 @@ void gen(Node* node) {
     case ND_RETURN:
       gen(node->lhs);
       printf("  pop rax\n");
-      printf("  mov rsp, rbp\n");
-      printf("  pop rbp\n");
+      printf("  add rsp, %d\n", addVar * 8);
       printf("  ret\n");
       return;
     case ND_IF: {
@@ -157,6 +156,39 @@ void gen(Node* node) {
       }
     }
       return;
+    case ND_DEFFUN: {
+      Node* retAndParamsNode = node->lhs;
+      Node* nameAndBodyNode = node->rhs;
+      ReturnTypeNode* retNode = (ReturnTypeNode*)retAndParamsNode->lhs;
+      Node* paramsNode = retAndParamsNode->rhs;
+      FunctionNameNode* nameNode = (FunctionNameNode*)nameAndBodyNode->lhs;
+      Node* bodyNode = nameAndBodyNode->rhs;
+      // 戻り値を取得
+      char retType[retNode->len + 1];
+      memset(retType, '\0', retNode->len + 1);
+      memcpy(retType, retNode->name, retNode->len);
+      // 関数名を取得
+      char funcName[nameNode->len + 1];
+      memset(funcName, '\0', nameNode->len + 1);
+      memcpy(funcName, nameNode->name, nameNode->len);
+      printf("%s:\n", funcName);
+      // 引数の数を数えて、その分だけスタックを拡張
+      int parameterCount = 0;
+      Node* paramsIter = paramsNode;
+      while (paramsIter) {
+        parameterCount++;
+        paramsIter = paramsIter->rhs;
+      }
+      printf("  sub rsp, %d\n", parameterCount * 8);
+      // ステートメントに対応したコードを生成
+      Node* stmtNode = bodyNode;
+      while (stmtNode) {
+        gen1(stmtNode->lhs, parameterCount);
+        stmtNode = stmtNode->rhs;
+      }
+      printf("  add rsp, %d\n", parameterCount * 8);
+    }
+      return;
   }
   gen(node->lhs);
   gen(node->rhs);
@@ -201,3 +233,5 @@ void gen(Node* node) {
   }
   printf("  push rax\n");
 }
+
+void gen(Node* node) { gen1(node, 0); }

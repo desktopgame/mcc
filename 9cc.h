@@ -37,6 +37,7 @@ Token* tokenize(char* p);
 // Node
 typedef enum {
   ND_CALL,
+  ND_DEFFUN,
   ND_BLOCK,
   ND_IF,
   ND_ELSE,
@@ -74,10 +75,14 @@ struct CallNode {
   char* name;
   int len;
 };
+typedef CallNode ReturnTypeNode;
+typedef CallNode ParameterNode;
+typedef CallNode FunctionNameNode;
 extern Node* code[100];
 Node* new_node(NodeKind kind, Node* lhs, Node* rhs);
 Node* new_node_num(int val);
 void program();
+Node* function();
 Node* stmt();
 Node* expr();
 Node* assign();

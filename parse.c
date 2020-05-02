@@ -193,9 +193,74 @@ bool consume(char* op);
 void program() {
   int i = 0;
   while (!at_eof()) {
-    code[i++] = stmt();
+    code[i++] = function();
   }
   code[i] = NULL;
+}
+
+Node* function() {
+  Node* node = calloc(1, sizeof(Node));
+  Node* retAndParamsNode = calloc(1, sizeof(Node));
+  Node* nameAndBodyNode = calloc(1, sizeof(Node));
+  ReturnTypeNode* retNode = calloc(1, sizeof(ReturnTypeNode));
+  FunctionNameNode* nameNode = calloc(1, sizeof(FunctionNameNode));
+  Node* paramsNode = calloc(1, sizeof(Node));
+  Node* bodyNode = calloc(1, sizeof(Node));
+  node->kind = ND_DEFFUN;
+  node->lhs = retAndParamsNode;
+  node->rhs = nameAndBodyNode;
+  retAndParamsNode->lhs = (Node*)retNode;
+  retAndParamsNode->rhs = paramsNode;
+  nameAndBodyNode->lhs = (Node*)nameNode;
+  nameAndBodyNode->rhs = bodyNode;
+  Token* ret = consume_ident();
+  retNode->name = ret->str;
+  retNode->len = ret->len;
+  if (!ret) {
+    error("トークンは識別子ではありません");
+  }
+  Token* name = consume_ident();
+  nameNode->name = name->str;
+  nameNode->len = name->len;
+  if (!ret) {
+    error("トークンは識別子ではありません");
+  }
+  if (!consume("(")) {
+    error("関数の引数列は ( で開始する必要があります");
+  }
+  Node* paramsWrite = paramsNode;
+  while (!consume(")")) {
+    Token* param = consume_ident();
+    if (param) {
+      ParameterNode* paramNode = calloc(1, sizeof(ParameterNode));
+      if (!paramsWrite->lhs) {
+        paramsWrite->lhs = (Node*)paramNode;
+      } else {
+        Node* child = calloc(1, sizeof(Node));
+        child->lhs = (Node*)paramNode;
+        paramsWrite->rhs = child;
+        paramsWrite = child;
+      }
+    } else {
+      consume(",");
+    }
+  }
+  if (!consume("{")) {
+    error("関数の本体は { で開始する必要があります");
+  }
+  Node* stmtWrite = bodyNode;
+  while (!consume("}")) {
+    Node* stmtNode = stmt();
+    if (!stmtWrite->lhs) {
+      stmtWrite->lhs = stmtNode;
+    } else {
+      Node* child = calloc(1, sizeof(Node));
+      child->lhs = stmtNode;
+      stmtWrite->rhs = child;
+      stmtWrite = child;
+    }
+  }
+  return node;
 }
 
 Node* stmt() {
