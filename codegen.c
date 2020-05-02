@@ -176,17 +176,26 @@ static void gen1(Node* node, int addVar) {
       int parameterCount = 0;
       Node* paramsIter = paramsNode;
       while (paramsIter) {
-        parameterCount++;
+        if (paramsIter->lhs) {
+          parameterCount++;
+        }
         paramsIter = paramsIter->rhs;
       }
       printf("  sub rsp, %d\n", parameterCount * 8);
       // ステートメントに対応したコードを生成
       Node* stmtNode = bodyNode;
+      bool genAddRsp = true;
       while (stmtNode) {
+        genAddRsp = true;
         gen1(stmtNode->lhs, parameterCount);
+        if (stmtNode->lhs->kind == ND_RETURN) {
+          genAddRsp = false;
+        }
         stmtNode = stmtNode->rhs;
       }
-      printf("  add rsp, %d\n", parameterCount * 8);
+      if (genAddRsp) {
+        printf("  add rsp, %d\n", parameterCount * 8);
+      }
     }
       return;
   }

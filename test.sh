@@ -68,5 +68,6 @@ cc -o lib/lib.o -c lib/lib.c
 assert 1 'int main() { return 1; }'
 assert 3 'int main() { return 2+1; }'
 assert 10 'int main() { return arg1(10); }'
+assert 10 'int foo() { return arg1(10); } int main() { return foo(); }'
 
 echo OK
