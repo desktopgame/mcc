@@ -7,22 +7,11 @@ int main(int argc, char* argv[]) {
     fprintf(stderr, "引数の数が正しくありません\n");
     return 1;
   }
-  user_input = argv[1];
-  token = tokenize(user_input);
-  program();
+  CFile* cfile = cfile_new(argv[1]);
+  cfile_lex(cfile);
+  cfile_parse(cfile);
   printf(".intel_syntax noprefix\n");
   printf(".global main\n");
-  // printf("main:\n");
-  // a~zまでの変数を確保する
-  // printf("  push rbp\n");
-  // printf("  mov rbp, rsp\n");
-  // printf("  sub rsp, 208\n");
-  for (int i = 0; code[i]; i++) {
-    gen(code[i]);
-    // printf("  pop rax\n");
-  }
-  // printf("  mov rsp, rbp\n");
-  // printf("  pop rbp\n");
-  // printf("  ret\n");
+  cfile_generate(cfile);
   return 0;
 }
