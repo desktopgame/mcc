@@ -12,6 +12,12 @@ void vec_init(Vec* self) {
   memset(self->data, 0, sizeof(void*) * 16);
 }
 
+Vec* vec_new() {
+  Vec* v = malloc(sizeof(Vec));
+  vec_init(v);
+  return v;
+}
+
 void vec_push(Vec* self, void* a) {
   if (self->size >= self->capa) {
     int newCapa = self->capa * 2;

@@ -11,6 +11,8 @@ struct Vec {
 
 void vec_init(Vec* self);
 
+Vec* vec_new();
+
 void vec_push(Vec* self, void* a);
 
 void* vec_at(Vec* self, int index);
