@@ -1,7 +1,7 @@
+#include "map.h"
+
 #include <stdlib.h>
 #include <string.h>
-
-#include "9cc.h"
 
 void map_init(Map* self, const char* key) {
   self->key = strdup(key);

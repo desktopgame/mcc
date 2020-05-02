@@ -1,9 +1,9 @@
+#include "vec.h"
+
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "9cc.h"
 
 void vec_init(Vec* self) {
   self->capa = 16;
