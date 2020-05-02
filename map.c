@@ -3,16 +3,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-void map_init(Map* self, const char* key) {
+void map_init(Map* self, const char* key, void* value) {
   self->key = strdup(key);
-  self->value = NULL;
+  self->value = value;
   self->left = NULL;
   self->right = NULL;
 }
 
 Map* map_new() {
   Map* m = malloc(sizeof(Map));
-  map_init(m, "\0");
+  map_init(m, "\0", NULL);
   return m;
 }
 
@@ -22,17 +22,15 @@ void map_set(Map* self, const char* key, void* value) {
     self->value = value;
   } else if (c < 0) {
     if (!self->left) {
-      self->left = map_new();
-      self->left->key = strdup(key);
-      self->left->value = value;
+      self->left = malloc(sizeof(Map));
+      map_init(self->left, key, value);
     } else {
       map_set(self->left, key, value);
     }
   } else if (c > 0) {
     if (!self->right) {
-      self->right = map_new();
-      self->right->key = strdup(key);
-      self->right->value = value;
+      self->right = malloc(sizeof(Map));
+      map_init(self->right, key, value);
     } else {
       map_set(self->right, key, value);
     }

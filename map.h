@@ -12,7 +12,7 @@ struct Map {
   Map* right;
 };
 
-void map_init(Map* self, const char* key);
+void map_init(Map* self, const char* key, void* value);
 
 Map* map_new();
 
