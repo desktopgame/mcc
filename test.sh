@@ -69,5 +69,9 @@ assert 1 'int main() { return 1; }'
 assert 3 'int main() { return 2+1; }'
 assert 10 'int main() { return arg1(10); }'
 assert 10 'int foo() { return arg1(10); } int main() { return foo(); }'
+assert 10 'int add1(a) { return 10; } int main() { return add1(10); }'
+assert 10 'int add1(a) { return a; } int main() { return add1(10); }'
+assert 10 'int add1(a) { return a + 1; } int main() { return add1(9); }'
+assert 10 'int add(a, b) { return a + b; } int main() { return add(9,1); }'
 
 echo OK
