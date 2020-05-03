@@ -3,6 +3,7 @@
 #include "lvar.h"
 // Node
 typedef enum {
+  ND_DEFLOCALVAR,
   ND_ADDR,
   ND_DEREF,
   ND_CALL,
@@ -48,6 +49,14 @@ typedef struct DefFuncNode DefFuncNode;
 struct DefFuncNode {
   Node node;
   LVar* locals;
+};
+typedef struct DefLocalVarNode DefLocalVarNode;
+struct DefLocalVarNode {
+  Node node;
+  char* typeName;
+  int typeNameLen;
+  char* name;
+  int nameLen;
 };
 
 typedef CallNode ReturnTypeNode;

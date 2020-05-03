@@ -360,6 +360,22 @@ static Node* stmt(CFile* cfile) {
   if (!consume(cfile, ";")) {
     error_at(cfile, cfile->token->str, "';'ではないトークンです。");
   }
+  // int num
+  Token* typenameTok = NULL;
+  Token* varNameTok = NULL;
+  if ((typenameTok = consume_ident(cfile)) &&
+      (varNameTok = consume_ident(cfile))) {
+    // int num;
+    expect(cfile, ';');
+    DefLocalVarNode* defLocalVar = calloc(1, sizeof(DefLocalVarNode));
+    defLocalVar->typeName = typenameTok->str;
+    defLocalVar->typeNameLen = typenameTok->len;
+    defLocalVar->name = varNameTok->str;
+    defLocalVar->nameLen = varNameTok->len;
+    node = (Node*)defLocalVar;
+    node->kind = ND_DEFLOCALVAR;
+    return node;
+  }
   return node;
 }
 
