@@ -235,9 +235,17 @@ static Node* function(CFile* cfile) {
   }
   Node* paramsWrite = paramsNode;
   while (!consume(cfile, ")")) {
-    Token* param = consume_ident(cfile);
-    if (param) {
+    Token* paramTypeTok = consume_ident(cfile);
+    Token* paramNameTok = consume_ident(cfile);
+    if (paramTypeTok) {
+      if (!paramNameTok) {
+        error_at(cfile, paramNameTok->str, "引数名が存在しません");
+      }
       ParameterNode* paramNode = calloc(1, sizeof(ParameterNode));
+      paramNode->typeName = paramTypeTok->str;
+      paramNode->typeNameLen = paramTypeTok->len;
+      paramNode->name = paramNameTok->str;
+      paramNode->nameLen = paramNameTok->len;
       if (!paramsWrite->lhs) {
         paramsWrite->lhs = (Node*)paramNode;
       } else {
