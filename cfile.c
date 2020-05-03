@@ -135,7 +135,7 @@ static Token* tokenize(char* p) {
       p += 2;
       continue;
     }
-    if (strchr(";=+-*/()<>{},", *p)) {
+    if (strchr(";=+-*/()<>{},&", *p)) {
       cur = new_token(TK_RESERVED, cur, p++);
       cur->len = 1;
       continue;
@@ -435,6 +435,12 @@ static Node* unary(CFile* cfile) {
   }
   if (consume(cfile, "-")) {
     return new_node(ND_SUB, new_node_num(0), unary(cfile));
+  }
+  if (consume(cfile, "&")) {
+    return new_node(ND_ADDR, unary(cfile), NULL);
+  }
+  if (consume(cfile, "*")) {
+    return new_node(ND_DEREF, unary(cfile), NULL);
   }
   return primary(cfile);
 }

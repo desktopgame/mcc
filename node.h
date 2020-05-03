@@ -3,6 +3,8 @@
 #include "lvar.h"
 // Node
 typedef enum {
+  ND_ADDR,
+  ND_DEREF,
   ND_CALL,
   ND_DEFFUN,
   ND_BLOCK,

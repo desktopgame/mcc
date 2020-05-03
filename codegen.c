@@ -246,6 +246,17 @@ static void gen1(Node* node, int depth, int addVar) {
       }
     }
       return;
+    case ND_ADDR: {
+      gen_lval(node->lhs);
+    }
+      return;
+    case ND_DEREF: {
+      gen_lval(node->lhs);
+      printf("  pop rax\n");
+      printf("  mov rax, [rax]\n");
+      printf("  push rax\n");
+    }
+      return;
   }
   gen(node->lhs);
   gen(node->rhs);
