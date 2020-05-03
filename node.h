@@ -1,6 +1,7 @@
 #ifndef NODE_H
 #define NODE_H
 #include "lvar.h"
+#include "map.h"
 // Node
 typedef enum {
   ND_DEFLOCALVAR,
@@ -49,6 +50,7 @@ typedef struct DefFuncNode DefFuncNode;
 struct DefFuncNode {
   Node node;
   LVar* locals;
+  Map* defLocalVarMap;
 };
 typedef struct DefLocalVarNode DefLocalVarNode;
 struct DefLocalVarNode {

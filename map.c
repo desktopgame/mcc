@@ -1,10 +1,13 @@
 #include "map.h"
 
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "str.h"
+
 void map_init(Map* self, const char* key, void* value) {
-  self->key = strdup(key);
+  self->key = str_dup(key);
   self->value = value;
   self->left = NULL;
   self->right = NULL;
@@ -17,6 +20,7 @@ Map* map_new() {
 }
 
 void map_set(Map* self, const char* key, void* value) {
+  assert(self);
   int c = strcmp(self->key, key);
   if (c == 0) {
     self->value = value;
@@ -38,6 +42,7 @@ void map_set(Map* self, const char* key, void* value) {
 }
 
 bool map_get(Map* self, const char* key, void** outValue) {
+  assert(self);
   int c = strcmp(self->key, key);
   if (c == 0) {
     (*outValue) = self->value;

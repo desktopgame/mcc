@@ -11,8 +11,8 @@
 #include "error.h"
 #include "lvar.h"
 #include "node.h"
+#include "str.h"
 #include "token.h"
-
 static bool consume(CFile* cfile, char* op);
 static Token* consume_ident(CFile* cfile);
 static void expect(CFile* cfile, char op);
@@ -202,6 +202,7 @@ static void program(CFile* cfile) {
 
 static Node* function(CFile* cfile) {
   DefFuncNode* defFuncNode = calloc(1, sizeof(DefFuncNode));
+  defFuncNode->defLocalVarMap = map_new();
   defFuncNode->locals = NULL;
   cfile->_defFuncNode = defFuncNode;
   Node* node = (Node*)defFuncNode;
@@ -246,6 +247,10 @@ static Node* function(CFile* cfile) {
       paramNode->typeNameLen = paramTypeTok->len;
       paramNode->name = paramNameTok->str;
       paramNode->nameLen = paramNameTok->len;
+      // 引数をローカル宣言済みとして記憶する
+      char paramName[paramNameTok->len + 1];
+      str_range(paramName, paramNameTok->str, paramNameTok->len);
+      map_set(defFuncNode->defLocalVarMap, paramName, (void*)1);
       if (!paramsWrite->lhs) {
         paramsWrite->lhs = (Node*)paramNode;
       } else {
@@ -382,6 +387,14 @@ static Node* stmt(CFile* cfile) {
     defLocalVar->nameLen = varNameTok->len;
     node = (Node*)defLocalVar;
     node->kind = ND_DEFLOCALVAR;
+    // ローカル変数の宣言を記憶しておく
+    char paramName[varNameTok->len + 1];
+    void* _ = NULL;
+    str_range(paramName, varNameTok->str, varNameTok->len);
+    if (map_get(cfile->_defFuncNode->defLocalVarMap, paramName, &_)) {
+      error("変数'%s'は既に宣言されています", paramName);
+    }
+    map_set(cfile->_defFuncNode->defLocalVarMap, paramName, (void*)1);
     return node;
   }
   return node;
