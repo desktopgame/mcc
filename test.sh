@@ -76,6 +76,7 @@ assert 10 'int add(a, b) { return a + b; } int main() { return add(9,1); }'
 assert 8 'int sub(a, b) { return a - b; } int main() { return sub(9,1); }'
 assert 7 'int sub(a, b, c) { return a - b - c; } int main() { return sub(9,1,1); }'
 assert 6 'int sub(a, b, c, d) { return a - b - c - d; } int main() { return sub(9,1,1,1); }'
-#assert 5 'int sub(a, b, c, d, e) { return a - b - c - d - e; } int main() { return sub(9,1,1,1,1); }'
+assert 5 'int sub(a, b, c, d, e) { return a - b - c - d - e; } int main() { return sub(9,1,1,1,1); }'
+assert 4 'int sub(a, b, c, d, e, f) { return a - b - c - d - e - f; } int main() { return sub(9,1,1,1,1,1); }'
 
 echo OK

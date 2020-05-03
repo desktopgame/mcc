@@ -38,9 +38,9 @@ static char* arg_register(int i) {
     case 3:
       return "rcx";
     case 4:
-      return "r8d";
+      return "r8";
     case 5:
-      return "r9d";
+      return "r9";
 
     default:
       break;
