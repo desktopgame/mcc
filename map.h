@@ -22,4 +22,6 @@ void map_set(Map* self, const char* key, void* value);
 bool map_get(Map* self, const char* key, void** outValue);
 
 void map_free(Map* self, MapValueFreeFunc func);
+
+int map_count(Map* self);
 #endif

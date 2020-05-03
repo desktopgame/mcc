@@ -72,3 +72,15 @@ void map_free(Map* self, MapValueFreeFunc func) {
     func(self->value);
   }
 }
+
+static int map_count_rec(Map* self, int count) {
+  if (self->left) {
+    count += map_count_rec(self->left, count) + 1;
+  }
+  if (self->right) {
+    count += map_count_rec(self->right, count) + 1;
+  }
+  return count;
+}
+
+int map_count(Map* self) { return map_count_rec(self, 0); }
