@@ -15,6 +15,7 @@
 #include "token.h"
 static bool consume(CFile* cfile, char* op);
 static Token* consume_ident(CFile* cfile);
+static bool consume_ident2(CFile* cfile, Token* out[2]);
 static void expect(CFile* cfile, char op);
 static int expect_number(CFile* cfile);
 static bool at_eof(CFile* cfile);
@@ -73,6 +74,21 @@ static Token* consume_ident(CFile* cfile) {
     return tmp;
   }
   return NULL;
+}
+
+static bool consume_ident2(CFile* cfile, Token* out[2]) {
+  Token* t0 = cfile->token;
+  Token* t1 = t0 ? t0->next : NULL;
+  if (!(t0 && t1)) {
+    return false;
+  }
+  if (t0->kind == TK_IDENT && t1->kind == TK_IDENT) {
+    out[0] = t0;
+    out[1] = t1;
+    cfile->token = t1->next;
+    return true;
+  }
+  return false;
 }
 
 static bool consume_kind(CFile* cfile, TokenKind k) {
@@ -283,6 +299,7 @@ static Node* function(CFile* cfile) {
 
 static Node* stmt(CFile* cfile) {
   Node* node;
+  Token* lvar[2];
   if (consume_return(cfile)) {
     node = calloc(1, sizeof(Node));
     node->kind = ND_RETURN;
@@ -367,17 +384,9 @@ static Node* stmt(CFile* cfile) {
       }
     }
     return node;
-  } else {
-    node = expr(cfile);
-  }
-  if (!consume(cfile, ";")) {
-    error_at(cfile, cfile->token->str, "';'ではないトークンです。");
-  }
-  // int num
-  Token* typenameTok = NULL;
-  Token* varNameTok = NULL;
-  if ((typenameTok = consume_ident(cfile)) &&
-      (varNameTok = consume_ident(cfile))) {
+  } else if (consume_ident2(cfile, lvar)) {
+    Token* typenameTok = lvar[0];
+    Token* varNameTok = lvar[1];
     // int num;
     expect(cfile, ';');
     DefLocalVarNode* defLocalVar = calloc(1, sizeof(DefLocalVarNode));
@@ -396,6 +405,11 @@ static Node* stmt(CFile* cfile) {
     }
     map_set(cfile->_defFuncNode->defLocalVarMap, paramName, (void*)1);
     return node;
+  } else {
+    node = expr(cfile);
+  }
+  if (!consume(cfile, ";")) {
+    error_at(cfile, cfile->token->str, "';'ではないトークンです。");
   }
   return node;
 }

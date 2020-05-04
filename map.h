@@ -2,6 +2,8 @@
 #define MAP_H
 #include <stdbool.h>
 
+#include "vec.h"
+
 // 二分探索木
 typedef struct Map Map;
 typedef void (*MapValueFreeFunc)(void*);
@@ -11,6 +13,13 @@ struct Map {
   void* value;
   Map* left;
   Map* right;
+};
+
+typedef struct KeyValuePair KeyValuePair;
+
+struct KeyValuePair {
+  const char* key;
+  void* value;
 };
 
 void map_init(Map* self, const char* key, void* value);
@@ -24,4 +33,6 @@ bool map_get(Map* self, const char* key, void** outValue);
 void map_free(Map* self, MapValueFreeFunc func);
 
 int map_count(Map* self);
+
+Vec* map_to_vec(Map* self);
 #endif

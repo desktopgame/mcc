@@ -79,5 +79,6 @@ assert 6 'int sub(int a, int b, int c, int d) { return a - b - c - d; } int main
 assert 5 'int sub(int a, int b, int c, int d, int e) { return a - b - c - d - e; } int main() { return sub(9,1,1,1,1); }'
 assert 4 'int sub(int a, int b, int c, int d, int e, int f) { return a - b - c - d - e - f; } int main() { return sub(9,1,1,1,1,1); }'
 assert 1 'int main() { return arg2(2,1); }'
+assert 30 'int main() { int x; int y; x=20; y=10; return x + y; }'
 
 echo OK

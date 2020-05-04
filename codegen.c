@@ -50,6 +50,8 @@ static char* arg_register(int i) {
 static void gen1(Node* node, int depth, int addVar) {
   static int label = 0;
   switch (node->kind) {
+    case ND_DEFLOCALVAR:
+      return;
     case ND_NUM:
       printf("  push %d\n", node->val);
       return;
@@ -211,9 +213,10 @@ static void gen1(Node* node, int depth, int addVar) {
       }
       // ローカル変数を確保する前の位置を覚えておく
       comment(depth, "begin save local variable");
+      Vec* localVars = map_to_vec(defFuncNode->defLocalVarMap);
       printf("  push rbp\n");
       printf("  mov rbp, rsp\n");
-      printf("  sub rsp, %d\n", parameterCount * 8);
+      printf("  sub rsp, %d\n", localVars->size * 8);
       paramsIter = paramsNode;
       parameterCount = 0;
       while (paramsIter) {

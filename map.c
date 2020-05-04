@@ -84,3 +84,20 @@ static int map_count_rec(Map* self, int count) {
 }
 
 int map_count(Map* self) { return map_count_rec(self, 0); }
+
+static void map_to_vec1(Map* src, Vec* dst, bool addSelf) {
+  if (addSelf) {
+    KeyValuePair* kvp = malloc(sizeof(KeyValuePair));
+    kvp->key = src->key;
+    kvp->value = src->value;
+    vec_push(dst, kvp);
+  }
+  if (src->left) map_to_vec1(src->left, dst, true);
+  if (src->right) map_to_vec1(src->right, dst, true);
+}
+
+Vec* map_to_vec(Map* self) {
+  Vec* v = vec_new();
+  map_to_vec1(self, v, false);
+  return v;
+}
