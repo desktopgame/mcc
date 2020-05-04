@@ -55,8 +55,7 @@ struct DefFuncNode {
 typedef struct DefLocalVarNode DefLocalVarNode;
 struct DefLocalVarNode {
   Node node;
-  char* typeName;
-  int typeNameLen;
+  Type* type;
   char* name;
   int nameLen;
 };

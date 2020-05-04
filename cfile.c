@@ -91,6 +91,40 @@ static bool consume_ident2(CFile* cfile, Token* out[2]) {
   return false;
 }
 
+static bool consume_lvar(CFile* cfile, Vec** out) {
+  // int
+  Token* t0 = cfile->token;
+  if (!t0 || t0->kind != TK_IDENT) {
+    return false;
+  }
+  // int hoge
+  Token* t1 = t0->next;
+  if (t1 && t1->kind == TK_IDENT) {
+    (*out) = vec_new();
+    vec_push((*out), t0);
+    vec_push((*out), t1);
+    cfile->token = t1->next;
+    return true;
+    // int************************************************************************
+  } else if ((t1 && *t1->str == '*' && t1->len == 1)) {
+    (*out) = vec_new();
+    vec_push((*out), t0);
+    while ((t1 && *t1->str == '*' && t1->len == 1)) {
+      vec_push((*out), t1);
+      t1 = t1->next;
+    }
+    if (t1->kind == TK_IDENT) {
+      vec_push((*out), t1);
+      cfile->token = t1->next;
+      return true;
+    } else {
+      vec_free((*out), NULL);
+      return false;
+    }
+  }
+  return false;
+}
+
 static bool consume_kind(CFile* cfile, TokenKind k) {
   if (cfile->token->kind == k) {
     Token* tmp = cfile->token;
@@ -252,15 +286,17 @@ static Node* function(CFile* cfile) {
   }
   Node* paramsWrite = paramsNode;
   while (!consume(cfile, ")")) {
-    Token* paramTypeTok = consume_ident(cfile);
-    Token* paramNameTok = consume_ident(cfile);
-    if (paramTypeTok) {
-      if (!paramNameTok) {
-        error_at(cfile, paramNameTok->str, "引数名が存在しません");
-      }
+    Vec* paramDef;
+    if (consume_lvar(cfile, &paramDef)) {
+      Token* paramTypeTok = vec_at(paramDef, 0);
+      Token* paramNameTok = vec_at(paramDef, paramDef->size - 1);
       ParameterNode* paramNode = calloc(1, sizeof(ParameterNode));
-      paramNode->typeName = paramTypeTok->str;
-      paramNode->typeNameLen = paramTypeTok->len;
+      paramNode->type = type_new(INT);
+      for (int i = 1; i < paramDef->size - 1; i++) {
+        paramNode->type = type_ptrtype(paramNode->type);
+      }
+      // paramNode->typeName = paramTypeTok->str;
+      // paramNode->typeNameLen = paramTypeTok->len;
       paramNode->name = paramNameTok->str;
       paramNode->nameLen = paramNameTok->len;
       // 引数をローカル宣言済みとして記憶する
@@ -299,7 +335,7 @@ static Node* function(CFile* cfile) {
 
 static Node* stmt(CFile* cfile) {
   Node* node;
-  Token* lvar[2];
+  Vec* lvar;
   if (consume_return(cfile)) {
     node = calloc(1, sizeof(Node));
     node->kind = ND_RETURN;
@@ -384,14 +420,16 @@ static Node* stmt(CFile* cfile) {
       }
     }
     return node;
-  } else if (consume_ident2(cfile, lvar)) {
-    Token* typenameTok = lvar[0];
-    Token* varNameTok = lvar[1];
+  } else if (consume_lvar(cfile, &lvar)) {
+    Token* typenameTok = vec_at(lvar, 0);
+    Token* varNameTok = vec_at(lvar, lvar->size - 1);
     // int num;
     expect(cfile, ';');
     DefLocalVarNode* defLocalVar = calloc(1, sizeof(DefLocalVarNode));
-    defLocalVar->typeName = typenameTok->str;
-    defLocalVar->typeNameLen = typenameTok->len;
+    defLocalVar->type = type_new(INT);
+    for (int i = 1; i < lvar->size - 1; i++) {
+      defLocalVar->type = type_ptrtype(defLocalVar->type);
+    }
     defLocalVar->name = varNameTok->str;
     defLocalVar->nameLen = varNameTok->len;
     node = (Node*)defLocalVar;
