@@ -64,7 +64,11 @@ static void gen1(Node* node, int depth, int addVar) {
       comment(depth, "end local variable reference");
       return;
     case ND_ASSIGN:
-      gen_lval(node->lhs);
+      if (node->lhs->kind == ND_DEREF) {
+        gen(node->lhs);
+      } else {
+        gen_lval(node->lhs);
+      }
       gen(node->rhs);
 
       printf("  pop rbx\n");
